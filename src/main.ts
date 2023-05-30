@@ -2,22 +2,24 @@ import { loadConfig } from './config'
 import { DiscordEmbed, sendDiscordMessage } from './discord'
 import { getCampaigns } from './quicpay-campaigns'
 import { Notified } from './notified'
+import { Logger } from '@book000/node-utils'
 
 async function main() {
+  const logger = Logger.configure('main')
   const config = loadConfig()
 
-  console.log('📡 Fetching campaigns...')
+  logger.info('📡 Fetching campaigns...')
   const campaigns = await getCampaigns()
   const isFirst = Notified.isFirst()
   const newCampaigns = campaigns.filter((campaign) => {
     return !Notified.isNotified(campaign.url)
   })
-  console.log(`📝 ${newCampaigns.length} new campaigns found.`)
+  logger.info(`📝 ${newCampaigns.length} new campaigns found.`)
 
   for (const campaignInfo of newCampaigns) {
     const { url, title, start, end, description } = campaignInfo
-    console.log(`📝 ${title} : ${description}`)
-    console.log(`📝 ${start} 〜 ${end}`)
+    logger.info(`📝 ${title} : ${description}`)
+    logger.info(`📝 ${start} 〜 ${end}`)
 
     const embed: DiscordEmbed = {
       title,
@@ -42,8 +44,9 @@ async function main() {
 }
 
 ;(async () => {
+  const logger = Logger.configure('main')
   await main().catch((error) => {
-    console.error(error)
+    logger.error(error)
     // eslint-disable-next-line unicorn/no-process-exit
     process.exit(1)
   })
