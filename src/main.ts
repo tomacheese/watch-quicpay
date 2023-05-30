@@ -36,7 +36,7 @@ async function main() {
       ],
     }
     if (!isFirst) {
-      await sendDiscordMessage(config, '', embed)
+      await sendDiscordMessage(config, '', embed, true)
     }
 
     Notified.addNotified(url)
