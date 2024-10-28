@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@book000/eslint-config": "1.7.78",
-    "@book000/node-utils": "1.13.318",
+    "@book000/node-utils": "1.13.319",
     "@types/cheerio": "0.22.35",
     "@types/jest": "29.5.14",
     "@types/node": "22.8.1",
