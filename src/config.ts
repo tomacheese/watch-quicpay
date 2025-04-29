@@ -25,7 +25,7 @@ const isConfig = (config: any): config is Configuration => {
     typeof config.discord === 'object' &&
     // webhook_url があるか token と channel_id があるか
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    (config.discord.webhook_url ||
+    (config.discord.webhook_url ??
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       (config.discord.token && config.discord.channel_id)) &&
     // webhook_url があるとき、string である
