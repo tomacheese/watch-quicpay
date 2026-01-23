@@ -37,3 +37,4 @@ pnpm install
 - 既存のプロジェクトルールがある場合はそれを優先する。
 
 ## リポジトリ固有
+- 目的: Notify new campaign information added to the [QUICPay campaign list page](https://www.quicpay.jp/campaign/) via Discord.

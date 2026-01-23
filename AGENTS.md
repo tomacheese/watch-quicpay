@@ -25,3 +25,4 @@
 - ログに機密情報を出力しない。
 
 ## リポジトリ固有
+- 目的: Notify new campaign information added to the [QUICPay campaign list page](https://www.quicpay.jp/campaign/) via Discord.
