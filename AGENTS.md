@@ -25,5 +25,5 @@
 ## リポジトリ固有
 - スクレイピング対象: `https://www.quicpay.jp/campaign/`
 - 通知先: Discord Webhook
-- 設定ファイル: `config.json` (スキーマは `schema/Configuration.json`)
+- 設定ファイル: `data/config.json` (スキーマは `schema/Configuration.json`)
 - 通知済み管理: `data/notified.json` (デフォルト)

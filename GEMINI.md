@@ -18,7 +18,7 @@ Gemini CLI 向けのコンテキストと作業方針を定義する。
 
 ## コーディング規約
 - フォーマット: Prettier
-- 命名規則: CamelCase (関数、変数), PascalCase (クラス、インターフェース)
+- 命名規則: camelCase (関数、変数), PascalCase (クラス、インターフェース)
 - コメント: 日本語
 - エラーメッセージ: 英語
 
@@ -29,6 +29,9 @@ pnpm install
 
 # 実行
 pnpm start
+
+# 開発モード（ウォッチモード）
+pnpm dev
 
 # テスト
 pnpm test
@@ -48,4 +51,4 @@ pnpm fix
 ## リポジトリ固有
 - `src/quicpay-campaigns.ts` がスクレイピングの肝となる。
 - `Notified` クラスが通知済み情報の永続化を担当している。
-- 設定は `config.json` で管理される。
+- 設定は `data/config.json` で管理される。
