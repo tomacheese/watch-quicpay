@@ -79,7 +79,7 @@ async function activateCrosspost(config: Configuration, messageId: string) {
         body: JSON.stringify({}),
       }
     )
-  } catch (_) {
+  } catch {
     // ignore errors : don't care if crosspost fails
   }
 }
