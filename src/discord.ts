@@ -1,5 +1,3 @@
-// axios → fetch 移行
-
 import { Configuration } from './config'
 
 export interface DiscordEmbedFooter {
