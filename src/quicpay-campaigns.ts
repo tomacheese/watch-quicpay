@@ -1,5 +1,3 @@
-// axios → fetch 移行
-
 import * as cheerio from 'cheerio'
 
 interface QuicpayCampaign {
