@@ -1,4 +1,3 @@
-import axios from 'axios'
 import * as cheerio from 'cheerio'
 
 interface QuicpayCampaign {
@@ -24,10 +23,11 @@ function checkAllNotUndefined(
 }
 
 export async function getCampaigns(): Promise<QuicpayCampaign[]> {
-  const response = await axios.get('https://www.quicpay.jp/campaign/', {
-    responseType: 'arraybuffer',
-  })
-  const $ = cheerio.load(response.data)
+  const res = await fetch('https://www.quicpay.jp/campaign/')
+  if (!res.ok) throw new Error(`HTTP error: ${res.status}`)
+  const arrayBuffer = await res.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+  const $ = cheerio.load(buffer)
   const campaignItems = $('div#comCampaignList .campaign-item')
   if (campaignItems.length === 0) {
     throw new Error('campaign items not found')
