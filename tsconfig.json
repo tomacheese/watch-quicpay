@@ -23,6 +23,8 @@
     "noFallthroughCasesInSwitch": true,
     "experimentalDecorators": true,
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "rootDir": "./src",
     "newLine": "LF",
     "paths": {
       "@/*": ["src/*"]
