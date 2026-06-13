@@ -22,13 +22,11 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "experimentalDecorators": true,
-    "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
     "rootDir": "./src",
     "types": ["jest", "node"],
     "newLine": "LF",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"]
