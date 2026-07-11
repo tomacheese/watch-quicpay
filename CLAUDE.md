@@ -1,96 +1,62 @@
 # CLAUDE.md
 
-## 目的
-Claude Code の作業方針とプロジェクト固有ルールを示す。
-
-## 判断記録のルール
-- 判断内容の要約
-- 検討した代替案
-- 採用しなかった案とその理由
-- 前提条件・仮定・不確実性
-- 他エージェントによるレビュー可否
-
 ## プロジェクト概要
-- 目的: QUICPay キャンペーン情報の監視と Discord 通知。
-- 主な機能: キャンペーン一覧の取得、新規項目の判定、Discord への通知。
-
-## 重要ルール
-- 会話は日本語で行う。
-- コミットメッセージは Conventional Commits に従い、説明は日本語とする。
-- コード内のコメントは日本語で記載する。
-- エラーメッセージは英語で記載する。
-
-## 環境のルール
-- ブランチ命名は Conventional Branch (`feat/`, `fix/` など) に従う。
-- GitHub リポジトリの調査が必要な場合は、テンポラリディレクトリにクローンして行う。
-- Renovate が作成した PR に対して、追加コミットや更新を行わない。
-
-## コード改修時のルール
-- 日本語と英数字の間には半角スペースを入れる。
-- エラーメッセージに絵文字が含まれている場合は、全体で絵文字の設定を統一する。
-- TypeScript の `skipLibCheck` を有効にして回避しない。
-- インターフェースには JSDoc を日本語で記載する（関数への JSDoc 記載は今後の方針として推奨）。
-
-## 相談ルール
-- Codex CLI: 実装レビュー、局所設計、整合性確認。
-- Gemini CLI: 外部仕様、最新情報確認。
-- 指摘への対応ルール: 指摘された内容は真摯に受け止め、黙殺しない。
+- 目的: QUICPay 公式サイトのキャンペーン一覧を監視し、新規キャンペーンを Discord に通知する。
+- 主な機能: キャンペーン一覧のスクレイピング、新規項目の判定、Discord への Embed 通知。
+- 技術スタック: TypeScript / Node.js (tsx 実行) / pnpm。
 
 ## 開発コマンド
 ```bash
-# 依存関係のインストール
-pnpm install
-
-# 実行
-pnpm start
-
-# 開発モード
-pnpm dev
-
-# テスト
-pnpm test
-
-# リンター
-pnpm lint
-
-# 修正
-pnpm fix
+pnpm install          # 依存関係のインストール
+pnpm start            # 実行 (tsx ./src/main.ts)
+pnpm dev              # 開発モード (watch)
+pnpm test             # テスト (Jest)
+pnpm lint             # prettier / eslint / tsc をまとめて実行
+pnpm fix              # prettier / eslint による自動修正
+pnpm generate-schema  # schema/Configuration.json を再生成
 ```
 
 ## アーキテクチャと主要ファイル
-- `src/main.ts`: エントリーポイント。全体のフロー制御。
-- `src/quicpay-campaigns.ts`: キャンペーン情報の取得ロジック。
-- `src/discord.ts`: Discord 通知関連の処理。
-- `src/config.ts`: 設定の読み込み。
-- `src/notified.ts`: 通知済み情報の永続化管理。
+- `src/main.ts`: エントリーポイント。取得・判定・通知の全体フロー制御。
+- `src/quicpay-campaigns.ts`: キャンペーン情報のスクレイピングとパース。サイト構造変更時はここを更新する。
+- `src/discord.ts`: Discord 通知 (Embed 送信)。
+- `src/config.ts`: 設定の読み込みと型定義 (`Configuration`)、パス定義。
+- `src/notified.ts`: 通知済み情報の永続化 (`Notified` クラス)。
 
-## 実装パターン
-- 推奨: `axios` と `cheerio` を組み合わせたスクレイピング。
-- 非推奨: 大規模なスクレイピングフレームワークの導入（本プロジェクトには過剰）。
+## コーディング規約
+- 会話・コメントは日本語、エラーメッセージは英語で記載する。
+- 日本語と英数字の間には半角スペースを入れる。
+- 命名は camelCase (関数・変数)、PascalCase (クラス・インターフェース)。
+- インターフェースには日本語で JSDoc を記載する (関数への記載は今後の方針として推奨)。
+- フォーマットは Prettier、Lint は ESLint に従う。
+- 推奨: 軽量なスクレイピング (標準 `fetch` + `cheerio`)。
+- 非推奨: TypeScript の `skipLibCheck` によるエラー回避、および大規模スクレイピングフレームワークの導入 (本プロジェクトには過剰)。
 
 ## テスト
-- Jest を使用。
-- スクレイピング結果のパースロジックなどは積極的にテストを書く。
+- Jest (ts-jest) を使用する。
+- スクレイピング結果のパースロジックなど、壊れやすい箇所には積極的にテストを書く。`src/quicpay-campaigns.test.ts` を参考にする。
+
+## リポジトリ固有
+- スクレイピング対象: `https://www.quicpay.jp/campaign/`。対象サイトの規約と負荷に配慮する。
+- 通知先: Discord Webhook もしくは Bot (token + channel_id)。設定は `src/config.ts` の `Configuration` 参照。
+- 設定ファイル: `data/config.json` (環境変数 `CONFIG_PATH` で変更可)。スキーマは `schema/Configuration.json`。
+- 通知済み管理: `data/notified.json` (環境変数 `NOTIFIED_PATH` で変更可)。
+
+## セキュリティ / 機密情報
+- Discord の Webhook URL・Bot token などの認証情報をコミットしない。
+- ログに機密情報を出力しない。
+
+## ドキュメント更新
+- 設定項目を変更した場合は `schema/Configuration.json` (`pnpm generate-schema`) と `README.md` を更新する。
+- 主要ファイル構成やコマンドを変更した場合は本 CLAUDE.md を更新する。
+
+## 環境・運用ルール
+- ブランチ命名は Conventional Branch (`feat/`, `fix/` など) に従う。
+- コミットメッセージは Conventional Commits に従い、説明は日本語とする。
+- Renovate が作成した PR に対して追加コミットや更新を行わない。
+- リポジトリ調査が必要な場合はテンポラリディレクトリにクローンして行う。
 
 ## 作業チェックリスト
-
-### 新規改修時
-1. プロジェクトを理解する。
-2. 作業ブランチが適切であることを確認する。
-3. 最新のリモートブランチに基づいた新規ブランチであることを確認する。
-4. 指定されたパッケージマネージャー (pnpm) で依存関係をインストールする。
-
-### コミット・プッシュ前
-1. Conventional Commits に従っていることを確認する。
-2. センシティブな情報（Webhook URL 等）が含まれていないことを確認する。
-3. `pnpm lint` でエラーがないことを確認する。
-4. `pnpm test` で動作確認を行う。
-
-### PR 作成前
-1. PR 作成の依頼があることを確認する。
-2. コンフリクトの恐れがないことを確認する。
-
-### PR 作成後
-1. コンフリクトがないことを確認する。
-2. PR 本文が最新状態のみを網羅していることを確認する。
-3. `gh pr checks <PR ID> --watch` で CI を確認する。
+- コミット前: Conventional Commits 準拠、機密情報の混入なし、`pnpm lint` と `pnpm test` が通ること。
+- PR 前: 作成依頼があること、コンフリクトの恐れがないこと。
+- PR 後: コンフリクトがないこと、PR 本文が最新状態を反映していること、`gh pr checks <PR> --watch` で CI を確認すること。
