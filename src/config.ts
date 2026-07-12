@@ -5,7 +5,7 @@ export const PATH = {
   notified: process.env.NOTIFIED_PATH ?? 'data/notified.json',
 }
 
-export interface Configuration {
+export interface Config {
   /** Discord webhook URL or bot token */
   discord: {
     /** Discord webhook URL (required if using webhook) */
@@ -17,7 +17,7 @@ export interface Configuration {
   }
 }
 
-const isConfig = (config: any): config is Configuration => {
+const isConfig = (config: any): config is Config => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return (
     config &&
@@ -46,7 +46,7 @@ const isConfig = (config: any): config is Configuration => {
   )
 }
 
-export function loadConfig(): Configuration {
+export function loadConfig(): Config {
   if (!fs.existsSync(PATH.config)) {
     throw new Error('Config file not found')
   }

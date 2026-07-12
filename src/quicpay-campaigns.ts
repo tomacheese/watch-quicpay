@@ -8,7 +8,7 @@ interface QuicpayCampaign {
   description: string
 }
 
-function checkAllNotUndefined(
+function isAllDefined(
   results: Partial<QuicpayCampaign>[]
 ): results is QuicpayCampaign[] {
   return results.every((result) => {
@@ -23,9 +23,9 @@ function checkAllNotUndefined(
 }
 
 export async function getCampaigns(): Promise<QuicpayCampaign[]> {
-  const res = await fetch('https://www.quicpay.jp/campaign/')
-  if (!res.ok) throw new Error(`HTTP error: ${res.status}`)
-  const arrayBuffer = await res.arrayBuffer()
+  const response = await fetch('https://www.quicpay.jp/campaign/')
+  if (!response.ok) throw new Error(`HTTP error: ${response.status}`)
+  const arrayBuffer = await response.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
   const $ = cheerio.load(buffer)
   const campaignItems = $('div#comCampaignList .campaign-item')
@@ -64,7 +64,7 @@ export async function getCampaigns(): Promise<QuicpayCampaign[]> {
     })
   }
 
-  if (!checkAllNotUndefined(results)) {
+  if (!isAllDefined(results)) {
     throw new Error('some results are undefined')
   }
 

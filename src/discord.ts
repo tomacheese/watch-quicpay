@@ -1,4 +1,4 @@
-import { Configuration } from './config'
+import { Config } from './config'
 
 export interface DiscordEmbedFooter {
   text: string
@@ -61,7 +61,7 @@ export interface DiscordEmbed {
   fields?: DiscordEmbedField[]
 }
 
-async function activateCrosspost(config: Configuration, messageId: string) {
+async function activateCrosspost(config: Config, messageId: string) {
   if (!config.discord.token || !config.discord.channel_id) {
     return
   }
@@ -83,7 +83,7 @@ async function activateCrosspost(config: Configuration, messageId: string) {
 }
 
 export async function sendDiscordMessage(
-  config: Configuration,
+  config: Config,
   text: string,
   embed?: DiscordEmbed,
   isCrosspost = false
@@ -91,7 +91,7 @@ export async function sendDiscordMessage(
   // webhook or bot
   if (config.discord.webhook_url) {
     // webhook
-    const res = await fetch(config.discord.webhook_url, {
+    const response = await fetch(config.discord.webhook_url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -101,15 +101,15 @@ export async function sendDiscordMessage(
         embeds: embed ? [embed] : undefined,
       }),
     })
-    if (res.status !== 204) {
-      throw new Error(`Discord webhook failed (${res.status})`)
+    if (response.status !== 204) {
+      throw new Error(`Discord webhook failed (${response.status})`)
     }
     return
   }
   if (config.discord.token && config.discord.channel_id) {
     // bot
 
-    const res = await fetch(
+    const response = await fetch(
       `https://discord.com/api/channels/${config.discord.channel_id}/messages`,
       {
         method: 'POST',
@@ -123,10 +123,10 @@ export async function sendDiscordMessage(
         }),
       }
     )
-    if (!res.ok) {
-      throw new Error(`Discord bot failed (${res.status})`)
+    if (!response.ok) {
+      throw new Error(`Discord bot failed (${response.status})`)
     }
-    const data = (await res.json()) as { id: string }
+    const data = (await response.json()) as { id: string }
     if (isCrosspost) {
       await activateCrosspost(config, data.id)
     }

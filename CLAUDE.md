@@ -20,7 +20,7 @@ pnpm generate-schema  # schema/Configuration.json を再生成
 - `src/main.ts`: エントリーポイント。取得・判定・通知の全体フロー制御。
 - `src/quicpay-campaigns.ts`: キャンペーン情報のスクレイピングとパース。サイト構造変更時はここを更新する。
 - `src/discord.ts`: Discord 通知 (Embed 送信)。
-- `src/config.ts`: 設定の読み込みと型定義 (`Configuration`)、パス定義。
+- `src/config.ts`: 設定の読み込みと型定義 (`Config`)、パス定義。
 - `src/notified.ts`: 通知済み情報の永続化 (`Notified` クラス)。
 
 ## コーディング規約
@@ -38,7 +38,7 @@ pnpm generate-schema  # schema/Configuration.json を再生成
 
 ## リポジトリ固有
 - スクレイピング対象: `https://www.quicpay.jp/campaign/`。対象サイトの規約と負荷に配慮する。
-- 通知先: Discord Webhook もしくは Bot (token + channel_id)。設定は `src/config.ts` の `Configuration` 参照。
+- 通知先: Discord Webhook もしくは Bot (token + channel_id)。設定は `src/config.ts` の `Config` 参照。
 - 設定ファイル: `data/config.json` (環境変数 `CONFIG_PATH` で変更可)。スキーマは `schema/Configuration.json`。
 - 通知済み管理: `data/notified.json` (環境変数 `NOTIFIED_PATH` で変更可)。
 
