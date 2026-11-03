@@ -1,14 +1,14 @@
 # watch-quicpay
 
-Notify new campaign information added to the [QUICPay campaign list page](https://www.quicpay.jp/campaign/) via Discord.
+[QUICPay のキャンペーン一覧ページ](https://www.quicpay.jp/campaign/)に追加された新しいキャンペーン情報を、Discord に通知する。
 
-## Installation
+## インストール
 
-Works in Node.js or Docker (Compose) environment.
+Docker (Compose) または Node.js 環境で動作する。
 
-### Docker (Recommended)
+### Docker (推奨)
 
-If you want to use Docker, write the following in `compose.yaml`:
+`compose.yml` に以下を記述する。
 
 ```yaml
 services:
@@ -22,28 +22,36 @@ services:
     restart: always
 ```
 
-After that, you can start it with `docker-compose up -d` after creating a configuration file with reference to [Configuration section](#configuration).
+[設定](#設定)を参考に `data/config.json` を作成したあと、`docker compose up -d` で起動できる。30 分間隔で繰り返しキャンペーンを確認する。
 
 ### Node.js
 
-If you are running in a Node.js environment, Node.js v18 is recommended.
+Node.js ([.node-version](.node-version) 参照) と pnpm が必要。
 
-Download and extract `watch-quicpay_vX.Y.Z.zip` from the [release page](https://github.com/tomacheese/watch-quicpay/releases) in the latest release.  
-After that, you can start it with `node index.js` after creating a configuration file with reference to [Configuration section](#configuration).
+```bash
+pnpm install
+pnpm start
+```
 
-## Configuration
+[設定](#設定)を参考に `data/config.json` を作成してから実行する。
 
-The configuration file `data/config.json` is used by default.  
-If the environment variable `CONFIG_FILE` is set, the specified value is taken as the path to the configuration file.
+## 設定
 
-See here for the JSON Schema of the configuration file: [schema/Configuration.json](schema/Configuration.json)
+既定では設定ファイル `data/config.json` を使う。環境変数 `CONFIG_PATH` を設定すると、その値を設定ファイルのパスとして使う。通知済みキャンペーンの記録先 (既定は `data/notified.json`) は環境変数 `NOTIFIED_PATH` で変更できる。
+
+設定ファイルの JSON Schema は [schema/Configuration.json](schema/Configuration.json) を参照。通知先は Discord Webhook (`webhook_url`) または Bot (`token` と `channel_id`) のいずれかを指定する。
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/tomacheese/watch-quicpay/master/schema/Configuration.json"
+  "$schema": "https://raw.githubusercontent.com/tomacheese/watch-quicpay/master/schema/Configuration.json",
+  "discord": {
+    "webhook_url": "https://discord.com/api/webhooks/..."
+  }
 }
 ```
 
-## License
+初回実行時は通知せず、現在掲載中のキャンペーンを通知済みとして記録するだけとなる。
 
-The license for this project is [MIT License](LICENSE).
+## ライセンス
+
+このプロジェクトのライセンスは [MIT License](LICENSE) である。

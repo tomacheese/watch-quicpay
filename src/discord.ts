@@ -78,7 +78,7 @@ async function activateCrosspost(config: Configuration, messageId: string) {
       }
     )
   } catch {
-    // ignore errors : don't care if crosspost fails
+    // クロスポストの失敗は通知自体に影響させないため無視する
   }
 }
 
@@ -88,9 +88,7 @@ export async function sendDiscordMessage(
   embed?: DiscordEmbed,
   isCrosspost = false
 ): Promise<void> {
-  // webhook or bot
   if (config.discord.webhook_url) {
-    // webhook
     const res = await fetch(config.discord.webhook_url, {
       method: 'POST',
       headers: {
@@ -109,8 +107,6 @@ export async function sendDiscordMessage(
   if (!config.discord.token || !config.discord.channel_id) {
     return
   }
-  // bot
-
   const res = await fetch(
     `https://discord.com/api/channels/${config.discord.channel_id}/messages`,
     {

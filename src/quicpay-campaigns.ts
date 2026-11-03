@@ -49,7 +49,7 @@ export async function getCampaigns(): Promise<QuicpayCampaign[]> {
     const end = campaign.attr('data-campaign-end')
     // 対象店舗でQUICPayを使うともれなくもらえる！
     // <p class="m-txt" data-gap="sm">対象店舗でQUICPayを使うともれなくもらえる！</p>
-    const description = campaign.find('.m-txt').eq(2).text() // 3番目のpタグ
+    const description = campaign.find('.m-txt').eq(2).text() // 3 番目の p タグ
 
     if (!url || !title || !start || !end || !description) {
       throw new Error('some campaign info is undefined')
