@@ -10,7 +10,13 @@ async function main() {
 
   logger.info('📡 Fetching campaigns...')
   const campaigns = await getCampaigns()
-  const isFirst = Notified.isFirst()
+  if (Notified.isFirst()) {
+    Notified.initialize(campaigns.map((campaign) => campaign.url))
+    logger.info(
+      `📝 Recorded ${campaigns.length} campaigns as the initial baseline.`
+    )
+    return
+  }
   const newCampaigns = campaigns.filter((campaign) => {
     return !Notified.isNotified(campaign.url)
   })
@@ -35,9 +41,7 @@ async function main() {
         },
       ],
     }
-    if (!isFirst) {
-      await sendDiscordMessage(config, '', embed, true)
-    }
+    await sendDiscordMessage(config, '', embed, true)
 
     Notified.addNotified(url)
   }
