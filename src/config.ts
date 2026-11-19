@@ -5,44 +5,54 @@ export const PATH = {
   notified: process.env.NOTIFIED_PATH ?? 'data/notified.json',
 }
 
+/** @minLength 1 */
+type NonEmptyString = string
+
 export interface Configuration {
   /** Discord の通知先設定 (Webhook または Bot) */
-  discord: {
-    /** Discord Webhook URL (Webhook を使う場合は必須) */
-    webhook_url?: string
-    /** Discord Bot の token (Bot を使う場合は必須) */
-    token?: string
-    /** Discord チャンネル ID (Bot を使う場合は必須) */
-    channel_id?: string
-  }
+  discord:
+    | {
+        /** 空でない Discord Webhook URL (Bot より優先) */
+        webhook_url: NonEmptyString
+        /** Webhook と併用する Discord Bot の token (任意) */
+        token?: string
+        /** Webhook と併用する Discord チャンネル ID (任意) */
+        channel_id?: string
+      }
+    | {
+        /** Discord Webhook URL (指定時は空文字列不可) */
+        webhook_url?: NonEmptyString
+        /** 空でない Discord Bot の token */
+        token: NonEmptyString
+        /** 空でない Discord チャンネル ID */
+        channel_id: NonEmptyString
+      }
 }
 
-const isConfig = (config: any): config is Configuration => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+const isConfig = (config: unknown): config is Configuration => {
+  if (
+    !config ||
+    typeof config !== 'object' ||
+    Array.isArray(config) ||
+    !('discord' in config)
+  ) {
+    return false
+  }
+  const discord = config.discord
+  if (!discord || typeof discord !== 'object' || Array.isArray(discord)) {
+    return false
+  }
+  const { webhook_url, token, channel_id } = discord as Record<string, unknown>
   return (
-    config &&
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    typeof config.discord === 'object' &&
-    // webhook_url があるか token と channel_id があるか
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    (config.discord.webhook_url ??
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      (config.discord.token && config.discord.channel_id)) &&
-    // webhook_url があるとき、string である
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    (config.discord.webhook_url === undefined ||
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      typeof config.discord.webhook_url === 'string') &&
-    // token があるとき、string である
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    (config.discord.token === undefined ||
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      typeof config.discord.token === 'string') &&
-    // channel_id があるとき、string である
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    (config.discord.channel_id === undefined ||
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      typeof config.discord.channel_id === 'string')
+    (webhook_url === undefined || typeof webhook_url === 'string') &&
+    (token === undefined || typeof token === 'string') &&
+    (channel_id === undefined || typeof channel_id === 'string') &&
+    (webhook_url === undefined
+      ? typeof token === 'string' &&
+        token.length > 0 &&
+        typeof channel_id === 'string' &&
+        channel_id.length > 0
+      : webhook_url.length > 0)
   )
 }
 
