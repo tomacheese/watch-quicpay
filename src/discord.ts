@@ -1,4 +1,5 @@
 import { Configuration } from './config'
+import { REQUEST_TIMEOUT_MS } from './request-timeout'
 
 export interface DiscordEmbedFooter {
   text: string
@@ -70,6 +71,7 @@ async function activateCrosspost(config: Configuration, messageId: string) {
       `https://discord.com/api/channels/${config.discord.channel_id}/messages/${messageId}/crosspost`,
       {
         method: 'POST',
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
         headers: {
           Authorization: `Bot ${config.discord.token}`,
           'Content-Type': 'application/json',
@@ -91,6 +93,7 @@ export async function sendDiscordMessage(
   if (config.discord.webhook_url) {
     const res = await fetch(config.discord.webhook_url, {
       method: 'POST',
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -111,6 +114,7 @@ export async function sendDiscordMessage(
     `https://discord.com/api/channels/${config.discord.channel_id}/messages`,
     {
       method: 'POST',
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       headers: {
         Authorization: `Bot ${config.discord.token}`,
         'Content-Type': 'application/json',

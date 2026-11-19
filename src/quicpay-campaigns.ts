@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio'
+import { REQUEST_TIMEOUT_MS } from './request-timeout'
 
 interface QuicpayCampaign {
   url: string
@@ -23,7 +24,9 @@ function checkAllNotUndefined(
 }
 
 export async function getCampaigns(): Promise<QuicpayCampaign[]> {
-  const res = await fetch('https://www.quicpay.jp/campaign/')
+  const res = await fetch('https://www.quicpay.jp/campaign/', {
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  })
   if (!res.ok) throw new Error(`HTTP error: ${res.status}`)
   const arrayBuffer = await res.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
