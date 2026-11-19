@@ -24,6 +24,10 @@ describe('Notified', () => {
   })
 
   test('stores the complete initial baseline without exposing a partial list', () => {
+    const referencePath = path.join(directory, 'default-mode')
+    fs.writeFileSync(referencePath, '')
+    const defaultMode = fs.statSync(referencePath).mode & 0o777
+    fs.rmSync(referencePath)
     const rename = fs.renameSync.bind(fs)
     const replacement = jest
       .spyOn(fs, 'renameSync')
@@ -40,6 +44,7 @@ describe('Notified', () => {
     expect(Notified.isFirst()).toBe(false)
     expect(Notified.isNotified(urls[0])).toBe(true)
     expect(Notified.isNotified(urls[1])).toBe(true)
+    expect(fs.statSync(PATH.notified).mode & 0o777).toBe(defaultMode)
     expect(fs.readdirSync(directory)).toEqual(['notified.json'])
   })
 
@@ -57,6 +62,54 @@ describe('Notified', () => {
     fs.writeFileSync(PATH.notified, JSON.stringify([urls[0]]))
     Notified.addNotified(urls[1])
     expect(JSON.parse(fs.readFileSync(PATH.notified, 'utf8'))).toEqual(urls)
+    expect(fs.readdirSync(directory)).toEqual(['notified.json'])
+  })
+
+  test.each([0o640, 0o664])(
+    'preserves existing file permissions: %s',
+    (mode) => {
+      fs.writeFileSync(PATH.notified, JSON.stringify([urls[0]]))
+      fs.chmodSync(PATH.notified, mode)
+      Notified.addNotified(urls[1])
+      expect(fs.statSync(PATH.notified).mode & 0o777).toBe(mode)
+      expect(JSON.parse(fs.readFileSync(PATH.notified, 'utf8'))).toEqual(urls)
+    }
+  )
+
+  test('atomically updates a symbolic link target and preserves the link', () => {
+    const persistentDirectory = path.join(directory, 'persistent')
+    fs.mkdirSync(persistentDirectory)
+    const targetPath = path.join(persistentDirectory, 'notified.json')
+    fs.writeFileSync(targetPath, JSON.stringify([urls[0]]))
+    fs.symlinkSync(path.relative(directory, targetPath), PATH.notified)
+    const rename = fs.renameSync.bind(fs)
+    const replacement = jest
+      .spyOn(fs, 'renameSync')
+      .mockImplementation((from, to) => {
+        expect(path.dirname(from.toString())).toBe(persistentDirectory)
+        expect(to).toBe(targetPath)
+        expect(JSON.parse(fs.readFileSync(targetPath, 'utf8'))).toEqual([
+          urls[0],
+        ])
+        rename(from, to)
+      })
+
+    Notified.addNotified(urls[1])
+
+    expect(replacement).toHaveBeenCalledTimes(1)
+    expect(fs.lstatSync(PATH.notified).isSymbolicLink()).toBe(true)
+    expect(JSON.parse(fs.readFileSync(targetPath, 'utf8'))).toEqual(urls)
+    expect(Notified.isNotified(urls[1])).toBe(true)
+    expect(fs.readdirSync(persistentDirectory)).toEqual(['notified.json'])
+  })
+
+  test('does not replace a dangling symbolic link during initialization', () => {
+    fs.symlinkSync('missing.json', PATH.notified)
+    expect(() => {
+      Notified.initialize(urls)
+    }).toThrow()
+    expect(fs.lstatSync(PATH.notified).isSymbolicLink()).toBe(true)
+    expect(fs.readlinkSync(PATH.notified)).toBe('missing.json')
     expect(fs.readdirSync(directory)).toEqual(['notified.json'])
   })
 

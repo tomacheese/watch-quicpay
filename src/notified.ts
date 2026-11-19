@@ -29,12 +29,7 @@ export class Notified {
     try {
       content = fs.readFileSync(PATH.notified, 'utf8')
     } catch (error) {
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'code' in error &&
-        error.code === 'ENOENT'
-      ) {
+      if (Notified.isMissingFile(error)) {
         return undefined
       }
       throw error
@@ -53,15 +48,39 @@ export class Notified {
   }
 
   private static save(eventCodes: string[]): void {
-    const temporaryPath = `${PATH.notified}.${randomUUID()}.tmp`
+    const targetPath = Notified.resolvePath()
+    const mode = fs.statSync(targetPath, { throwIfNoEntry: false })?.mode
+    const temporaryPath = `${targetPath}.${randomUUID()}.tmp`
     try {
       fs.writeFileSync(temporaryPath, JSON.stringify(eventCodes), {
         flag: 'wx',
-        mode: 0o600,
       })
-      fs.renameSync(temporaryPath, PATH.notified)
+      if (mode !== undefined) fs.chmodSync(temporaryPath, mode)
+      fs.renameSync(temporaryPath, targetPath)
     } finally {
       fs.rmSync(temporaryPath, { force: true })
     }
+  }
+
+  private static resolvePath(): string {
+    let stats: fs.Stats
+    try {
+      stats = fs.lstatSync(PATH.notified)
+    } catch (error) {
+      if (Notified.isMissingFile(error)) return PATH.notified
+      throw error
+    }
+    return stats.isSymbolicLink()
+      ? fs.realpathSync(PATH.notified)
+      : PATH.notified
+  }
+
+  private static isMissingFile(error: unknown): boolean {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 'ENOENT'
+    )
   }
 }
