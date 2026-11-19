@@ -39,7 +39,7 @@ pnpm start
 
 既定では設定ファイル `data/config.json` を使う。環境変数 `CONFIG_PATH` を設定すると、その値を設定ファイルのパスとして使う。通知済みキャンペーンの記録先 (既定は `data/notified.json`) は環境変数 `NOTIFIED_PATH` で変更できる。
 
-設定ファイルの JSON Schema は [schema/Configuration.json](schema/Configuration.json) を参照。通知先は Discord Webhook (`webhook_url`) または Bot (`token` と `channel_id`) のいずれかを指定する。
+設定ファイルの JSON Schema は [schema/Configuration.json](schema/Configuration.json) を参照。通知先は Discord Webhook (`webhook_url`) または Bot (`token` と `channel_id`) の認証情報を空でない文字列で指定する。両方を指定した場合は Webhook を優先する。
 
 ```json
 {
