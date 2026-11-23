@@ -42,7 +42,7 @@ pnpm generate-schema  # schema/Configuration.json を再生成
 - ログ出力には `@book000/node-utils` の `Logger` を使う。
 - スクレイピングは標準 `fetch` + `cheerio` を使う (`axios` は使用しない)。大規模スクレイピングフレームワークは導入しない。
 - `skipLibCheck` によるエラー回避は行わない。
-- テストは Jest (ts-jest)。パースなど壊れやすい箇所にはテストを書く (`src/quicpay-campaigns.test.ts` 参照。実サイトへアクセスする)。
+- テストは Jest (ts-jest)。パースなど壊れやすい箇所にはテストを書く (`src/quicpay-campaigns.test.ts` 参照。実サイトの疎通確認は `src/quicpay-campaigns.live.ts` で別途行う)。
 
 ## Git 運用
 
