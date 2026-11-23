@@ -9,20 +9,6 @@ interface QuicpayCampaign {
   description: string
 }
 
-function checkAllNotUndefined(
-  results: Partial<QuicpayCampaign>[]
-): results is QuicpayCampaign[] {
-  return results.every((result) => {
-    return (
-      result.url !== undefined &&
-      result.title !== undefined &&
-      result.start !== undefined &&
-      result.end !== undefined &&
-      result.description !== undefined
-    )
-  })
-}
-
 export async function getCampaigns(): Promise<QuicpayCampaign[]> {
   const res = await fetch('https://www.quicpay.jp/campaign/', {
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
@@ -36,7 +22,7 @@ export async function getCampaigns(): Promise<QuicpayCampaign[]> {
     throw new Error('campaign items not found')
   }
 
-  const results: Partial<QuicpayCampaign>[] = []
+  const results: QuicpayCampaign[] = []
   for (const campaignItem of campaignItems) {
     const campaign = $(campaignItem)
     // /campaign/2023/shopspecial_may.html
@@ -65,10 +51,6 @@ export async function getCampaigns(): Promise<QuicpayCampaign[]> {
       end,
       description,
     })
-  }
-
-  if (!checkAllNotUndefined(results)) {
-    throw new Error('some results are undefined')
   }
 
   return results
