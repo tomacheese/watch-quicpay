@@ -102,9 +102,10 @@ export async function sendDiscordMessage(
         embeds: embed ? [embed] : undefined,
       }),
     })
-    if (res.status !== 204) {
+    if (res.status !== 200 && res.status !== 204) {
       throw new Error(`Discord webhook failed (${res.status})`)
     }
+    await res.body?.cancel().catch(() => undefined)
     return
   }
   if (!config.discord.token || !config.discord.channel_id) {
